@@ -1,3 +1,4 @@
+//#include <stdio.h>
 #include <iostream>
 #include <vector>
 
@@ -9,7 +10,7 @@ public:
 
 	int n, m;
 
-	vector<int> I, J, H, L, IJ;
+	vector<int> I, J, H, L, IJ, numComp;
 
 	void GenHl();
 	void ReadIJ();
@@ -17,6 +18,9 @@ public:
 	void Export();
 	void PrintIJHL();
 	void Add(int, int);
+	void DeleteArc(int, int);
+	void DFS(int, int);
+	void ConnectedComponent();
 	Graph(int, vector<int>&, vector<int>&);
 	Graph();
 	~Graph() {};
@@ -168,8 +172,55 @@ void Graph::Export()
 	fprintf(out, "}\n");
 	fclose(out);
 }
+void Graph::DeleteArc(int v, int a)
+{
+	if (H[v] == a)
+	{
+		int temp = H[v];
+		H[v] = L[H[v]];
+		L[temp] = -1;
+	}
+	else
+	{
+		for (int k = H[v]; k != -1; k = L[k])
+		{
+			if (L[k] == a)
+			{
+				int temp = L[k];
+				L[k] = L[L[k]];
+				L[temp] = -1;
+			}
+		}
+	}
+}
 
-int main(int argc, char const *argv[])
+void Graph::DFS(int v, int color) {
+	if (numComp[v] == -1) {
+		numComp[v] = color;
+
+		for (int i = 0; i < m; i++) {
+			if (IJ[i] == v) {
+				printf("%d %d %d %d\n", v, color, i);
+				DFS(IJ[IJ.size() - 1 - i], color);
+			}
+		}
+	}
+}
+
+void Graph::ConnectedComponent() {
+
+	for (int i = 0; i < n; i++) {
+		DFS(i, i);
+	}
+
+	printf("| Col |\n");
+	for (int i = 0; i < n; i++)
+	{
+		printf("| %3d |\n", numComp[i]);
+	}
+
+
+	int main(int argc, char const *argv[])
 	{
 
 		//Graph a;
@@ -184,3 +235,5 @@ int main(int argc, char const *argv[])
 		a.Export();
 		return 0;
 	}
+
+}
